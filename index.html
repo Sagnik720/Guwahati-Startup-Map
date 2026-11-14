@@ -3,10 +3,10 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Guwahati Startup Map</title>
 <link rel="icon" type="image/png" href="favicon.png?v=4">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@3.6.2/dist/maplibre-gl.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#fff;--tx:#1a1a1a;--mu:#6b7280;--bd:#e5e7eb;--pill:#fff;--sh:0 6px 24px rgba(0,0,0,.14);--or:#f2561d;--ink:#111;--onink:#fff}
@@ -150,10 +150,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{ou
 <div class="theme"><button data-t="light" title="Light mode" aria-label="Light mode">☀</button><button data-t="dark" title="Dark mode" aria-label="Dark mode">☾</button></div>
 <div class="msg" id="msg"><div></div></div><div id="toast"></div><div id="detail"></div><div id="modal"><div class="mbox"></div></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
-<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.22/leaflet-maplibre-gl.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@maplibre/maplibre-gl-leaflet@0.0.22/leaflet-maplibre-gl.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
@@ -163,8 +163,7 @@ const NEWS_URL = "";   // optional: a second tab with columns title,url,source,d
 const SUBMIT_URL = ""; // Tally or Google Form link for "Submit"
 const ALERT_URL  = ""; // form link for "Get job alerts"
 const OWNER_EMAIL = "sagniktamuli@gmail.com"; // your email: the Submit and Get job alerts forms are sent here
-const GOOGLE_CLIENT_ID = "349339558630-s9hat3mOfqqdu97tvpe2pluhfquka7sg.ap
-ps.googleusercontent.com"; // optional: adds "Sign in with Google"
+const GOOGLE_CLIENT_ID = ""; // optional: adds "Sign in with Google"
 const JOBS_URL   = ""; // optional: a "jobs" tab (columns company,title,department,level,posted,url) published as CSV
 const SITE_NAME  = "Guwahati Startup Map";
 const CREDIT     = "by Sagnik Tamuli"; // small credit, bottom-left
