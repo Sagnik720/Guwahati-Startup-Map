@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guwahati Startup Map</title>
+<link rel="icon" type="image/png" href="favicon.png?v=4">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--tx:#1a1a1a;--mu:#6b7280;--bd:#e5e7eb;--pill:#fff;--sh:0 6px 24px rgba(0,0,0,.14);--or:#f2561d;--ink:#111;--onink:#fff}
+.dark{--bg:#1c1d20;--tx:#f3f4f6;--mu:#9ca3af;--bd:#3a3c42;--pill:#26272b;--sh:0 6px 24px rgba(0,0,0,.55);--ink:#f3f4f6;--onink:#111}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{font:15px/1.4 Inter,system-ui,"Segoe UI",sans-serif;color:var(--tx);background:var(--bg);overflow:hidden}
+#map{position:absolute;inset:0;z-index:0}
+.dark #map{filter:invert(1) hue-rotate(180deg)}
+.dark #map .leaflet-marker-pane,.dark #map .leaflet-popup-pane,.dark #map .leaflet-control-container{filter:invert(1) hue-rotate(180deg)}
+.bar{position:absolute;z-index:700;top:8px;left:10px;right:10px;background:var(--bg);border-radius:14px;box-shadow:var(--sh);padding:8px 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:17px;margin-right:4px;white-space:nowrap}
+.pillbtn,select,input{font:inherit;color:var(--tx);background:var(--pill);border:1px solid var(--bd);border-radius:999px;padding:6px 13px;font-size:14px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+input{flex:1 1 220px;min-width:160px}
+select{appearance:none;padding-right:30px;min-width:100px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.seg{display:flex;background:var(--pill);border:1px solid var(--bd);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;color:var(--tx);font:inherit;font-size:14px;padding:5px 13px;border-radius:999px;cursor:pointer}
+.seg button.on{background:var(--ink);color:var(--onink)}
+.pillbtn{cursor:pointer}
+.jobs{border:2px solid var(--or);color:var(--or);font-weight:600;display:flex;gap:8px;align-items:center}
+.jobs.on{background:var(--or);color:#fff}
+.submit{background:var(--or);color:#fff;border-color:var(--or);font-weight:700;font-size:14px;text-decoration:none;padding:7px 16px}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--or);outline-offset:2px}
+#news{position:absolute;z-index:650;right:14px;top:var(--bh,100px);margin-top:18px;width:min(420px,calc(100% - 28px));background:var(--bg);border-radius:18px;box-shadow:var(--sh);overflow:hidden}
+#news header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;font-weight:600;border-bottom:1px solid var(--bd)}
+#news header button{border:0;background:none;color:var(--mu);font-size:20px;cursor:pointer}
+.n{display:block;padding:14px 18px;border-bottom:1px solid var(--bd);color:var(--tx);text-decoration:none}
+.n:hover{background:rgba(127,127,127,.08)}
+.n b{font-weight:600;font-size:16px;display:block}
+.n div{display:flex;align-items:center;gap:8px;margin-top:8px;color:var(--mu);font-size:13px}
+.ic{width:20px;height:20px;border-radius:5px;color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.chip{margin-left:auto;background:rgba(127,127,127,.15);border-radius:6px;padding:2px 8px;font-size:12px}
+.nf{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;color:var(--mu)}
+.nf button{background:var(--ink);color:var(--onink);border:0;border-radius:999px;padding:9px 20px;font:inherit;font-weight:600;cursor:pointer}
+.empty{padding:18px;color:var(--mu)}
+.roles{position:absolute;z-index:650;left:50%;transform:translateX(-50%);bottom:26px;background:var(--bg);box-shadow:var(--sh);border-radius:999px;padding:12px 18px;display:flex;gap:12px;align-items:center;font-weight:500;font-size:17px;cursor:pointer;white-space:nowrap}
+.roles b{background:var(--or);color:#fff;border-radius:999px;padding:3px 11px;font-size:15px}
+.roles button{border:0;background:none;color:var(--mu);font-size:22px;cursor:pointer}
+.bl{position:absolute;z-index:650;left:14px;bottom:14px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.alerts{background:var(--or);color:#fff;font-weight:600;border:0;border-radius:999px;padding:12px 20px;box-shadow:var(--sh);cursor:pointer;font:inherit;font-weight:600}
+.sm{background:var(--bg);box-shadow:var(--sh);border-radius:999px;padding:7px 14px;font-size:14px}
+.theme{position:absolute;z-index:700;right:14px;bottom:14px;display:flex;background:var(--bg);border-radius:999px;box-shadow:var(--sh);padding:3px}
+.theme button{border:0;background:none;color:var(--tx);cursor:pointer;width:30px;height:30px;border-radius:50%;font-size:15px}
+.theme button.on{background:var(--ink);color:var(--onink)}
+.leaflet-control-zoom{margin:0 14px 58px 0!important;border:0!important;box-shadow:var(--sh)!important}
+.leaflet-control-zoom a{background:var(--bg)!important;color:var(--tx)!important;border-color:var(--bd)!important}
+.leaflet-control-attribution{background:var(--bg)!important;color:var(--mu)!important;margin-right:56px!important}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--bg);color:var(--tx)}
+.pop h3{margin:0 0 4px;font-size:16px}.pop p{margin:6px 0 0}.pop a{color:var(--or);font-weight:600}
+.tag{display:inline-block;font-size:12px;border:1px solid var(--bd);border-radius:999px;padding:1px 9px;margin:2px 4px 2px 0;color:var(--mu)}
+.pin{width:38px;height:38px;border-radius:50%;background:#fff;border:3px solid;display:grid;place-items:center;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.35);font-weight:700;font-size:15px;color:#333}
+.pin img{width:100%;height:100%;object-fit:contain}
+#grid{position:absolute;inset:0;z-index:600;background:var(--bg);overflow:auto;padding:var(--gp,160px) 20px 80px;display:none;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;align-content:start}
+.card{border:1px solid var(--bd);border-radius:14px;padding:16px;background:var(--pill)}
+.card h3{margin:0 0 6px;font-size:17px}.card p{margin:8px 0 0}.card a{color:var(--or);font-weight:600}
+.msg{position:absolute;inset:0;z-index:900;display:none;place-items:center;text-align:center;padding:24px;background:var(--bg)}
+.msg div{max-width:440px}
+#toast{position:absolute;z-index:950;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--ink);color:var(--onink);padding:10px 18px;border-radius:999px;display:none}
+@media(max-width:900px){#news{display:none}.roles{bottom:70px}.brand{font-size:18px}}
+
+.theme{z-index:900!important}
+#grid{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))!important}
+.gc{display:grid;grid-template-columns:64px 1fr;gap:6px 14px;border:1px solid var(--bd);border-radius:16px;padding:18px;background:var(--pill);color:var(--tx);text-decoration:none}
+.gc:hover{box-shadow:var(--sh)}
+.gl,.dlogo{position:relative;border-radius:12px;color:#fff;font-weight:700;display:grid;place-items:center;overflow:hidden;flex:none}
+.gl{width:64px;height:64px;font-size:28px}.dlogo{width:76px;height:76px;font-size:34px;border-radius:14px}
+.gl img,.dlogo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff}
+.gt{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.gt b{font-size:19px;font-weight:600}
+.bd{font-size:13px;background:rgba(127,127,127,.16);border-radius:999px;padding:2px 11px}.bd.hot{background:#ffe9df;color:var(--or)}
+.gb p{margin:4px 0 0;color:var(--mu);font-size:16px}
+.gp{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.pl{display:inline-block;font-size:13px;border:1px solid var(--bd);border-radius:999px;padding:4px 12px;color:var(--tx)}.yr{color:var(--mu);font-size:13px}
+#detail{position:absolute;inset:0;z-index:800;background:var(--bg);overflow:auto;display:none}
+.dwrap{max-width:860px;margin:0 auto;padding:40px 20px 80px}
+.back{color:var(--mu);text-decoration:none}
+.dhead{display:flex;gap:18px;align-items:center;margin:26px 0 18px}
+.dhead h1{margin:0;font-size:32px}.dhead .bd{vertical-align:middle;margin-left:8px;font-weight:500}
+.tagline{margin:6px 0 0;color:var(--mu);font-size:19px}
+.site{color:var(--or);text-decoration:none}
+.vbtn{display:inline-block;background:var(--or);color:#fff;border-radius:10px;padding:13px 24px;font-weight:600;text-decoration:none;margin:18px 0 26px}
+.rl{font-size:14px;font-weight:400;color:var(--mu);letter-spacing:.03em;margin:10px 0 8px}
+.job{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid var(--bd)}
+.job b{font-size:19px;font-weight:500;display:block;margin-bottom:6px}.pm{color:var(--mu);font-size:14px;margin-left:6px}
+.apply{background:var(--or);color:#fff;border-radius:999px;padding:9px 20px;font-weight:600;text-decoration:none;white-space:nowrap}
+.dtext{font-size:18px;line-height:1.7;margin:28px 0}
+.drow{padding:16px 0;border-top:1px solid var(--bd)}.drow small{display:block;color:var(--mu);letter-spacing:.03em;margin-bottom:4px}.drow a,.flist a{color:var(--or);text-decoration:none}
+.subc{border:1px solid var(--bd);border-radius:20px;padding:22px;margin:30px 0}.subc small{color:var(--or);letter-spacing:.1em}.subc h4{margin:6px 0;font-size:20px}.subc p{color:var(--mu);margin:0 0 14px}
+.subc button{background:var(--or);color:#fff;border:0;border-radius:10px;padding:12px 22px;font:inherit;font-weight:600;cursor:pointer}
+.flist{display:grid;grid-template-columns:1fr 1fr;gap:20px;border-top:1px solid var(--bd);padding-top:20px;font-size:14px}.flist small{display:block;color:var(--mu);margin-bottom:8px}.flist a{display:inline-block;margin:0 12px 6px 0;color:var(--mu)}
+.fbot{border-top:1px solid var(--bd);margin-top:20px;padding-top:18px;display:flex;gap:22px;flex-wrap:wrap}.fbot a{color:var(--mu);text-decoration:none}
+@media(max-width:640px){.flist{grid-template-columns:1fr}}
+
+#toast{z-index:1100!important}
+.gc{position:relative}
+.hrt{position:absolute;right:14px;top:12px;border:0;background:none;font-size:20px;color:#c4c8cc;cursor:pointer}.hrt.on{color:#e11d48}
+.sbtn{position:static!important;border:1px solid var(--bd);border-radius:10px;padding:12px 18px;font:inherit;font-size:16px;color:var(--tx);margin:18px 0 26px 10px;background:none}.sbtn.on{color:#e11d48}
+.av{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--or);color:#fff;font-size:12px;margin-right:4px}
+#modal{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.45);display:none;place-items:center}
+.mbox{background:var(--bg);color:var(--tx);border-radius:18px;padding:24px;width:min(400px,92vw);box-shadow:var(--sh)}
+.mbox h3{margin:0 0 6px;font-size:20px}.mu{color:var(--mu);margin:0 0 14px}.mbox input,.mbox select{display:block;width:100%;margin:8px 0}
+.mbtn{width:100%;margin-top:10px;background:var(--or);color:#fff;border:0;border-radius:999px;padding:12px;font:inherit;font-weight:600;cursor:pointer}
+.mx{width:100%;margin-top:8px;background:none;border:0;color:var(--mu);cursor:pointer;font:inherit}
+#credit{font-size:12px;padding:4px 10px;color:var(--mu)}
+.li{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:3px;background:#0a66c2;color:#fff;font-size:10px;font-weight:700;text-decoration:none;margin-left:5px;vertical-align:-2px}
+
+/* compact news panel */
+#news{width:min(310px,calc(100% - 28px));right:10px;margin-top:10px;border-radius:12px}
+#news header{padding:9px 14px;font-size:13px}
+#news header button{font-size:16px}
+.n{padding:9px 14px}
+.n b{font-size:13px;line-height:1.35;font-weight:500}
+.n div{gap:6px;margin-top:5px;font-size:11px}
+.ic{width:14px;height:14px;font-size:9px;border-radius:3px}
+.chip{padding:1px 6px;font-size:10px}
+.nf{padding:8px 14px;font-size:12px}
+.nf button{padding:6px 14px;font-size:12px}
+.empty{padding:12px 14px;font-size:12px} 
+/* compact size on desktop, same as 80% browser zoom */
+@media(min-width:900px){html{zoom:.8}}
+/* keep filter dropdowns a fixed width even if a sheet cell has long text */
+.bar select{width:140px;max-width:140px;text-overflow:ellipsis}
+</style></head><body>
+<div id="map"></div>
+
+<header class="bar" id="bar">
+  <div class="brand"><svg width="17" height="22" viewBox="0 0 22 28"><path d="M11 0C5 0 .5 4.6.5 10.5.5 18 11 28 11 28s10.5-10 10.5-17.5C21.5 4.6 17 0 11 0z" fill="#ef4468"/><circle cx="11" cy="10.5" r="4" fill="#fff"/></svg><span id="title">Guwahati Startup Map</span></div>
+  <input id="q" type="search" placeholder="Search startups, sectors, areas…" aria-label="Search">
+  <select id="fType" aria-label="Type"><option value="">All types</option></select>
+  <select id="fArea" aria-label="Area"><option value="">All areas</option></select>
+  <select id="fStage" aria-label="Stage"><option value="">All stages</option></select>
+  <select id="fSector" aria-label="Sector"><option value="">All sectors</option></select>
+  <div class="seg"><button class="on" id="vMap">Map</button><button id="vGrid">Grid</button></div>
+  <button class="pillbtn jobs" id="jobs"><span>💼</span><span id="jc">0 employers</span></button>
+  <a class="pillbtn submit" id="submit" href="#">Submit</a>
+  <button class="pillbtn" id="signin">Sign in</button>
+</header>
+
+<aside id="news"><header><span>Latest news</span><button id="nx" aria-label="Close news">×</button></header><div id="nl"></div><div class="nf"><span id="np"></span><button id="nn">Next</button></div></aside>
+<div class="roles" id="roles"><span>View employers</span><b id="rc">0</b><button id="rx" aria-label="Dismiss">×</button></div>
+<div class="bl"><button class="alerts" id="alerts">✉ Get job alerts</button><div class="sm" id="res"></div><div class="sm" id="credit"></div></div>
+<div id="grid"></div>
+<div class="theme"><button data-t="light" title="Light mode" aria-label="Light mode">☀</button><button data-t="dark" title="Dark mode" aria-label="Dark mode">☾</button></div>
+<div class="msg" id="msg"><div></div></div><div id="toast"></div><div id="detail"></div><div id="modal"><div class="mbox"></div></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.22/leaflet-maplibre-gl.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+/* ===== SETTINGS ===== */
+const CSV_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTK12dM_S-XZ4s5OBPifYQ8pcFIoCQhswyEUHC0skv5tLomjoOmgf9h5HMqgb-3OUiNQUeMC9DkUJqy/pub?gid=1340681140&single=true&output=csv"; // companies tab, published as CSV
+const NEWS_URL = "";   // optional: a second tab with columns title,url,source,date,tag, published as CSV
+const SUBMIT_URL = ""; // Tally or Google Form link for "Submit"
+const ALERT_URL  = ""; // form link for "Get job alerts"
+const OWNER_EMAIL = "sagniktamuli@gmail.com"; // your email: the Submit and Get job alerts forms are sent here
+const GOOGLE_CLIENT_ID = ""; // optional: adds "Sign in with Google"
+const JOBS_URL   = ""; // optional: a "jobs" tab (columns company,title,department,level,posted,url) published as CSV
+const SITE_NAME  = "Guwahati Startup Map";
+const CREDIT     = "by Sagnik Tamuli"; // small credit, bottom-left
+const CREDIT_LINK = "https://www.linkedin.com/in/sagnik-tamuli-57b3b62a7"; // your LinkedIn link
+/* ==================== */
+const COL={startup:"#e11d48",incubator:"#0e7490",vc:"#b8860b",employer:"#16a34a"};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const num=v=>{const n=parseFloat(String(v??"").replace(/[^\d.\-]/g,""));return Number.isFinite(n)?n:null};
+const toast=t=>{$("toast").textContent=t;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",2200)};
+let rows=[],news=[],jobs=[],page=0,jobsOn=false;
+const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const isUrl=u=>/^https?:\/\//i.test(u||"");
+const hue=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return h};
+const logoHTML=(r,cls)=>`<div class="${cls}" style="background:hsl(${hue(r.name)} 62% 46%)">${esc((r.name[0]||"?").toUpperCase())}${isUrl(r.logo)?`<img src="${esc(r.logo)}" alt="" onerror="this.remove()">`:""}</div>`;
+const tagline=r=>{const t=(r.description||"").split(/[.;]\s|[.;]$/)[0];return t.length>110?t.slice(0,107)+"…":t};
+const jobsFor=r=>jobs.filter(j=>(j.company||"").trim().toLowerCase()===r.name.trim().toLowerCase());
+const hiring=r=>jobs.length?jobsFor(r).length>0:r.type.toLowerCase()==="employer";
+function updateCounts(){const n=jobs.length||rows.filter(x=>x.type.toLowerCase()==="employer").length;$("jc").textContent=n+(jobs.length?" jobs":" employers");$("rc").textContent=n;document.querySelector("#roles span").textContent=jobs.length?"View open roles":"View employers"}
+function gcard(r){const n=jobsFor(r).length,pills=[r.sector,r.area].filter(Boolean).map(t=>`<span class="pl">${esc(t)}</span>`).join("")+(r.founded?`<span class="yr">· ${esc(r.founded)}</span>`:"");
+  return `<a class="gc" href="#company/${slug(r.name)}">${logoHTML(r,"gl")}<div class="gb"><div class="gt"><b>${esc(r.name)}</b>${r.stage?`<span class="bd">${esc(r.stage)}</span>`:""}${n?`<span class="bd hot">${n} open</span>`:""}</div><p>${esc(tagline(r))}</p></div><div class="gp">${pills}</div><button class="hrt${saved.has(slug(r.name))?" on":""}" data-n="${slug(r.name)}" aria-label="Save">♥</button></a>`}
+function showDetail(){
+  const d=$("detail"),m=location.hash.match(/^#company\/(.+)$/),r=m&&rows.find(x=>slug(x.name)===m[1]);
+  if(!r){d.style.display="none";return}
+  const js=jobsFor(r),lk=(f,v)=>v?`<a href="#" data-f="${f}" data-v="${esc(v)}">${esc(v)}</a>`:"",row=(k,v)=>v?`<div class="drow"><small>${k}</small><div>${v}</div></div>`:"";
+  const jobsHTML=js.length?`<h4 class="rl">${js.length} OPEN ROLE${js.length>1?"S":""} IN GUWAHATI</h4>`+js.map(j=>`<div class="job"><div><b>${esc(j.title)}</b>${[j.department,j.level].filter(Boolean).map(t=>`<span class="pl">${esc(t)}</span> `).join("")}<span class="pm">${esc(j.posted||"")}</span></div>${isUrl(j.url)?`<a class="apply" href="${esc(j.url)}" target="_blank" rel="noopener">Apply ↗</a>`:""}</div>`).join(""):(isUrl(r.careers)?`<a class="vbtn" href="${esc(r.careers)}" target="_blank" rel="noopener">View open jobs ↗</a>`:"");
+  const list=k=>[...new Set(rows.map(x=>x[k]).filter(Boolean))].sort().map(v=>lk(k==="area"?"fArea":"fSector",v)).join("");
+  d.innerHTML=`<div class="dwrap"><a class="back" href="#">← All startups</a><div class="dhead">${logoHTML(r,"dlogo")}<div><h1>${esc(r.name)}${r.stage?`<span class="bd">${esc(r.stage)}</span>`:""}</h1><p class="tagline">${esc(tagline(r))}</p>${isUrl(r.website)?`<a class="site" href="${esc(r.website)}" target="_blank" rel="noopener">${esc(r.website.replace(/^https?:\/\/(www\.)?/,"").replace(/\/$/,""))}</a>`:""}</div></div>${isUrl(r.website)?`<a class="vbtn" href="${esc(r.website)}" target="_blank" rel="noopener">Visit website ↗</a>`:""}<button class="sbtn hrt${saved.has(slug(r.name))?" on":""}" data-n="${slug(r.name)}">♥ ${saved.has(slug(r.name))?"Saved":"Save"}</button>${jobsHTML}<p class="dtext">${esc(r.description)}</p>${row("SECTOR",lk("fSector",r.sector))}${row("TAGS",esc(r.tags))}${row("AREA",lk("fArea",r.area))}${row("LOCATION",esc(r.address))}${row("FOUNDED",esc(r.founded))}${row("TEAM SIZE",esc(r.team))}${row("TOTAL FUNDING",esc(r.funding))}${row("LINKS",isUrl(r.linkedin)?`<a href="${esc(r.linkedin)}" target="_blank" rel="noopener">LinkedIn</a>`:"")}<div class="subc"><small>GUWAHATI CIRCLE</small><h4>Jobs &amp; fundraises like this</h4><p>Startup jobs, fundraises and news, curated for you.</p><button id="subbtn">Get job alerts</button></div><div class="flist"><div><small>AREAS</small>${list("area")}</div><div><small>SECTORS</small>${list("sector")}</div></div><div class="fbot"><a href="#">Browse all startups →</a><a href="#">← Back to the map</a></div></div>`;
+  d.querySelectorAll("[data-f]").forEach(a=>a.onclick=e=>{e.preventDefault();$(a.dataset.f).value=a.dataset.v;location.hash="";render()});
+  $("subbtn").onclick=alertsModal;
+  d.style.display="block";d.scrollTop=0;
+}
+
+
+/* theme */
+function setTheme(t){document.documentElement.classList.toggle("dark",t==="dark");document.querySelectorAll(".theme button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));try{localStorage.setItem("theme",t)}catch(e){}}
+let savedTheme=null;try{savedTheme=localStorage.getItem("theme")}catch(e){}
+setTheme(savedTheme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
+document.querySelectorAll(".theme button").forEach(b=>b.onclick=()=>setTheme(b.dataset.t));
+
+/* map */
+const map=L.map("map",{zoomControl:false,minZoom:10,maxZoom:19,maxBounds:[[25.95,91.45],[26.40,92.05]],maxBoundsViscosity:1}).setView([26.1445,91.7362],12);
+L.control.zoom({position:"bottomright"}).addTo(map);
+if(L.maplibreGL){L.maplibreGL({style:"https://tiles.openfreemap.org/styles/liberty",attribution:'<a href="https://openfreemap.org">OpenFreeMap</a> &copy; OpenMapTiles &copy; OpenStreetMap'}).addTo(map)}
+else{L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"&copy; OpenStreetMap"}).addTo(map)}
+const cl=L.markerClusterGroup?L.markerClusterGroup({showCoverageOnHover:false,maxClusterRadius:45}):L.layerGroup();map.addLayer(cl);
+window.addEventListener("error",e=>{$("msg").style.display="grid";$("msg").firstElementChild.innerHTML="<h2>Something went wrong</h2><p>"+esc(e.message)+"</p>"});
+
+$("title").textContent=SITE_NAME;$("credit").innerHTML=esc(CREDIT)+(CREDIT_LINK?` <a class="li" href="${esc(CREDIT_LINK)}" target="_blank" rel="noopener" aria-label="LinkedIn">in</a>`:"");if(!CREDIT)$("credit").style.display="none";
+$("submit").href=SUBMIT_URL||"#";$("submit").onclick=e=>{if(!SUBMIT_URL){e.preventDefault();toast("Add your form link in SUBMIT_URL")}};
+$("alerts").onclick=()=>ALERT_URL?window.open(ALERT_URL,"_blank","noopener"):toast("Add your form link in ALERT_URL");
+$("signin").onclick=()=>toast("Sign in isn't set up yet");
+const fit=()=>{const h=$("bar").offsetHeight;document.documentElement.style.setProperty("--bh",h+"px");document.documentElement.style.setProperty("--gp",(h+34)+"px")};
+new ResizeObserver(fit).observe($("bar"));fit();
+
+function msg(h){$("msg").style.display="grid";$("msg").firstElementChild.innerHTML=h}
+function load(){
+  if(CSV_URL.startsWith("PASTE_"))return msg("<h2>Almost there</h2><p>Open <code>index.html</code> in a text editor and paste your published Google Sheet CSV link into <code>CSV_URL</code>.</p>");
+  Papa.parse(CSV_URL,{download:true,header:true,skipEmptyLines:true,transformHeader:h=>h.trim().toLowerCase(),
+    complete:r=>{rows=r.data.filter(x=>(x.status||"").trim().toLowerCase()==="approved"&&(x.name||"").trim()).map(x=>({name:x.name.trim(),type:(x.type||"").trim(),website:(x.website||"").trim(),description:(x.description||"").trim(),sector:(x.sector||"").trim(),stage:(x.stage||"").trim(),area:(x.area||"").trim(),address:(x.address||"").trim(),logo:(x.logo||"").trim(),careers:(x.careers||"").trim(),tags:(x.tags||"").trim(),founded:(x.founded||"").trim(),team:(x.team||"").trim(),funding:(x.funding||"").trim(),linkedin:(x.linkedin||"").trim(),lat:num(x.lat),lng:num(x.lng??x.ing??x.lon??x.long)}));
+      rows.forEach(r=>{if(r.lat!==null&&r.lng!==null&&Math.abs(r.lat)>60&&Math.abs(r.lng)<60){[r.lat,r.lng]=[r.lng,r.lat]}if(r.lat!==null&&r.lng!==null&&(Math.abs(r.lat)>85||Math.abs(r.lng)>180)){r.lat=r.lng=null}});
+      console.log("Approved rows:",rows.length,"| with coordinates:",rows.filter(r=>r.lat!==null).length);
+      if(!rows.length)return msg("<h2>No approved companies yet</h2><p>Set <code>status</code> to <code>approved</code> on at least one row.</p>");
+      [["fType","type"],["fArea","area"],["fStage","stage"],["fSector","sector"]].forEach(([id,k])=>[...new Set(rows.map(x=>x[k]).filter(Boolean))].sort().forEach(v=>$(id).add(new Option(v,v))));
+      updateCounts();render();showDetail()},
+    error:()=>msg("<h2>Could not load the sheet</h2><p>Check the CSV link and that the sheet is published to the web. If you double-clicked this file, run a local server instead.</p>")});
+}
+function loadJobs(){if(!JOBS_URL)return;Papa.parse(JOBS_URL,{download:true,header:true,skipEmptyLines:true,transformHeader:h=>h.trim().toLowerCase(),complete:r=>{jobs=r.data.filter(j=>(j.company||"").trim()&&(j.title||"").trim());updateCounts();if(rows.length){render();showDetail()}}})}
+function loadNews(){
+  if(!NEWS_URL)return drawNews();
+  Papa.parse(NEWS_URL,{download:true,header:true,skipEmptyLines:true,transformHeader:h=>h.trim().toLowerCase(),
+    complete:r=>{news=r.data.filter(x=>x.title&&x.url).sort((a,b)=>new Date(b.date)-new Date(a.date));drawNews()},error:drawNews});
+}
+const ago=d=>{const t=new Date(d);if(isNaN(t))return"";const h=(Date.now()-t)/36e5;return h<24?Math.max(1,Math.floor(h))+"h":h<24*8?Math.floor(h/24)+"d":t.toLocaleDateString("en-GB",{day:"numeric",month:"short"})};
+function drawNews(){
+  const s=page*5,items=news.slice(s,s+5);
+  $("nl").innerHTML=items.length?items.map(n=>`<a class="n" href="${esc(n.url)}" target="_blank" rel="noopener"><b>${esc(n.title)}</b><div><span class="ic" style="background:#${(((n.source||"?").charCodeAt(0)*2654435)%0xffffff|0x303030).toString(16).slice(0,6).padStart(6,"3")}">${esc((n.source||"?")[0])}</span>${esc(n.source)} · ${ago(n.date)}${n.tag?`<span class="chip">${esc(n.tag)}</span>`:""}</div></a>`).join(""):`<div class="empty">No news yet. Add a news tab to your sheet and paste its CSV link into NEWS_URL.</div>`;
+  $("np").textContent=news.length?`${s+1}–${Math.min(s+5,news.length)} of ${news.length}`:"0 of 0";
+  $("nn").style.display=news.length>5?"":"none";
+}
+$("nn").onclick=()=>{page=(page+1)*5>=news.length?0:page+1;drawNews()};
+$("nx").onclick=()=>$("news").style.display="none";
+
+const list=()=>{const q=$("q").value.trim().toLowerCase();return rows.filter(r=>(!savedOn||saved.has(slug(r.name)))&&(!jobsOn||hiring(r))&&(!$("fType").value||r.type===$("fType").value)&&(!$("fArea").value||r.area===$("fArea").value)&&(!$("fStage").value||r.stage===$("fStage").value)&&(!$("fSector").value||r.sector===$("fSector").value)&&(!q||(r.name+" "+r.description+" "+r.sector+" "+r.area).toLowerCase().includes(q)))};
+function card(r){const w=/^https?:\/\//i.test(r.website)?`<p><a href="${esc(r.website)}" target="_blank" rel="noopener">Visit website</a></p>`:"";
+  return `<h3>${esc(r.name)}</h3>${[r.type,r.sector,r.stage,r.area].filter(Boolean).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}${r.description?`<p>${esc(r.description)}</p>`:""}${r.address?`<p>${esc(r.address)}</p>`:""}${w}<p><a href="#company/${slug(r.name)}">View details</a></p>`}
+function render(){
+  const l=list(),p=l.filter(r=>r.lat!==null&&r.lng!==null);
+  $("res").textContent=l.length+" results"+(l.length>p.length?` (${l.length-p.length} not pinned)`:"");
+  cl.clearLayers();
+  p.forEach(r=>{const c=COL[r.type.toLowerCase()]||"#555",ini=esc((r.name[0]||"?").toUpperCase());
+    const inner=/^https?:\/\//i.test(r.logo)?`<img src="${esc(r.logo)}" alt="" onerror="this.parentNode.textContent='${ini}'">`:ini;
+    cl.addLayer(L.marker([r.lat,r.lng],{icon:L.divIcon({className:"",html:`<div class="pin" style="border-color:${c}">${inner}</div>`,iconSize:[38,38],iconAnchor:[19,19]})}).bindPopup(`<div class="pop">${card(r)}</div>`,{maxWidth:280}).bindTooltip(r.name))});
+  if(p.length)map.fitBounds(L.latLngBounds(p.map(r=>[r.lat,r.lng])).pad(.2),{maxZoom:14});
+  $("grid").innerHTML=l.length?l.map(gcard).join(""):"<p>No companies match these filters.</p>";
+}
+function view(v){$("map").style.visibility=v==="map"?"visible":"hidden";$("grid").style.display=v==="grid"?"grid":"none";$("vMap").classList.toggle("on",v==="map");$("vGrid").classList.toggle("on",v==="grid");if(v==="map")setTimeout(()=>map.invalidateSize(),50)}
+$("vMap").onclick=()=>view("map");$("vGrid").onclick=()=>view("grid");
+["fType","fArea","fStage","fSector"].forEach(id=>$(id).onchange=render);$("q").oninput=render;
+function toggleJobs(){jobsOn=!jobsOn;$("jobs").classList.toggle("on",jobsOn);render()}
+$("jobs").onclick=toggleJobs;$("roles").onclick=e=>{if(e.target.id==="rx")$("roles").style.display="none";else toggleJobs()};
+let user=null,saved=new Set(),savedOn=false;
+const store={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
+function renderUser(){$("signin").innerHTML=user?`<b class="av">${esc(user.name[0].toUpperCase())}</b>${esc(user.name.split(" ")[0])}`:"Sign in"}
+function modal(h){const m=$("modal");m.firstElementChild.innerHTML=h;m.style.display="grid";const f=m.querySelector("input");if(f)f.focus()}
+function closeModal(){$("modal").style.display="none"}
+$("modal").onclick=e=>{if(e.target.id==="modal"||e.target.dataset.close!==undefined)closeModal()};
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
+function setUser(u){user=u;store.set("user",JSON.stringify(u));try{saved=new Set(JSON.parse(store.get("saved:"+u.email)||"[]"))}catch(e){saved=new Set()}closeModal();renderUser();toast("Signed in as "+u.name);render();showDetail()}
+function signInModal(){modal(`<h3>Sign in</h3><p class="mu">Save companies you like. Your saved list is kept on this device.</p><div id="gbtn"></div><input id="sn" placeholder="Your name" autocomplete="name"><input id="se" type="email" placeholder="Email" autocomplete="email"><button class="mbtn" id="sgo">Continue</button><button class="mx" data-close>Cancel</button>`);
+  $("sgo").onclick=()=>{const n=$("sn").value.trim(),e=$("se").value.trim().toLowerCase();if(!n||!/^\S+@\S+\.\S+$/.test(e))return toast("Enter your name and a valid email");setUser({name:n,email:e})};
+  if(GOOGLE_CLIENT_ID&&window.google&&google.accounts){google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:c=>{try{const q=JSON.parse(decodeURIComponent(escape(atob(c.credential.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")))));setUser({name:q.name||q.email,email:q.email})}catch(e){toast("Google sign-in failed")}}});google.accounts.id.renderButton($("gbtn"),{theme:"outline",size:"large",width:300})}}
+function accountModal(){modal(`<h3>${esc(user.name)}</h3><p class="mu">${esc(user.email)}</p><button class="mbtn" id="msv">${savedOn?"Show all companies":"Show saved companies ("+saved.size+")"}</button><button class="mx" id="mso">Sign out</button>`);
+  $("msv").onclick=()=>{savedOn=!savedOn;closeModal();render()};
+  $("mso").onclick=()=>{user=null;saved=new Set();savedOn=false;store.del("user");closeModal();renderUser();render();showDetail();toast("Signed out")}}
+function toggleSave(n){if(!user){signInModal();return}saved.has(n)?saved.delete(n):saved.add(n);store.set("saved:"+user.email,JSON.stringify([...saved]));render();showDetail()}
+document.addEventListener("click",e=>{const b=e.target.closest(".hrt");if(b){e.preventDefault();e.stopPropagation();toggleSave(b.dataset.n)}},true);
+function mail(sub,body){if(!OWNER_EMAIL)return toast("Add your email in OWNER_EMAIL");location.href="mailto:"+OWNER_EMAIL+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body)}
+function submitModal(){if(SUBMIT_URL){window.open(SUBMIT_URL,"_blank","noopener");return}
+  modal(`<h3>Add your company</h3><input id="m1" placeholder="Company name"><input id="m2" placeholder="Website (https://...)"><select id="m3"><option>Startup</option><option>Incubator</option><option>VC</option><option>Employer</option></select><input id="m4" placeholder="Area (e.g. Dispur)"><input id="m5" placeholder="One-line description"><input id="m6" type="email" placeholder="Your email"><button class="mbtn" id="m7">Send</button><button class="mx" data-close>Cancel</button>`);
+  $("m7").onclick=()=>{const v=i=>$("m"+i).value.trim();if(!v(1))return toast("Enter the company name");mail("New company: "+v(1),"Name: "+v(1)+"\nWebsite: "+v(2)+"\nType: "+v(3)+"\nArea: "+v(4)+"\nDescription: "+v(5)+"\nContact: "+v(6))}}
+function alertsModal(){if(ALERT_URL){window.open(ALERT_URL,"_blank","noopener");return}
+  modal(`<h3>Get job alerts</h3><p class="mu">Tell us where to send new openings.</p><input id="a1" type="email" placeholder="Your email" value="${esc(user?user.email:"")}"><input id="a2" placeholder="Interests (e.g. engineering, design)"><button class="mbtn" id="a3">Subscribe</button><button class="mx" data-close>Cancel</button>`);
+  $("a3").onclick=()=>{const e=$("a1").value.trim();if(!/^\S+@\S+\.\S+$/.test(e))return toast("Enter a valid email");mail("Job alerts signup","Email: "+e+"\nInterests: "+$("a2").value.trim())}}
+$("submit").onclick=e=>{e.preventDefault();submitModal()};$("alerts").onclick=alertsModal;$("signin").onclick=()=>user?accountModal():signInModal();
+try{user=JSON.parse(store.get("user")||"null");if(user)saved=new Set(JSON.parse(store.get("saved:"+user.email)||"[]"))}catch(e){user=null}
+renderUser();
+window.addEventListener("hashchange",showDetail);
+load();loadJobs();loadNews();
+</script></body></html>
