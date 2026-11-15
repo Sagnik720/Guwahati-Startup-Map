@@ -1,7 +1,13 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Guwahati Startup Map</title>
+<title>Guwahati Startup Map — Startups in Guwahati</title>
+<meta name="description" content="A directory of startups, incubators, investors and employers in Guwahati. Browse by area, stage and sector.">
+<link rel="canonical" href="https://guwahatistartupmap.com/">
+<meta property="og:title" content="Guwahati Startup Map">
+<meta property="og:description" content="Startups, incubators, investors and employers in Guwahati, on one map.">
+<meta property="og:image" content="https://guwahatistartupmap.com/favicon.png">
+<meta property="og:url" content="https://guwahatistartupmap.com/">
 <link rel="icon" type="image/png" href="favicon.png?v=4">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@3.6.2/dist/maplibre-gl.css">
@@ -127,6 +133,23 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{ou
 @media(min-width:900px){html{zoom:.8}}
 /* keep filter dropdowns a fixed width even if a sheet cell has long text */
 .bar select{width:140px;max-width:140px;text-overflow:ellipsis}
+.ftog{display:none}
+@media(max-width:640px){
+.bar{padding:10px 12px;gap:8px}
+.brand{order:1;flex:1;font-size:16px;margin:0}
+#submit{order:2;padding:6px 14px}
+#signin{order:3;padding:6px 12px}
+#q{order:4;flex:1 1 80px;min-width:80px}
+.seg{order:5}
+#jobs{order:6;padding:5px 10px;font-size:12px}
+#jobs span:first-child{display:none}
+.ftog{order:7;display:grid;place-items:center;padding:8px 11px}
+.bar select{display:none;order:8;width:calc(50% - 4px);max-width:none;min-width:0}
+.bar.open select{display:block}
+.roles{display:none}
+.alerts{padding:8px 14px;font-size:13px}
+#news{display:none}
+}
 </style></head><body>
 <div id="map"></div>
 
@@ -141,6 +164,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{ou
   <button class="pillbtn jobs" id="jobs"><span>💼</span><span id="jc">0 employers</span></button>
   <a class="pillbtn submit" id="submit" href="#">Submit</a>
   <button class="pillbtn" id="signin">Sign in</button>
+<button class="pillbtn ftog" id="ftog" aria-label="Filters"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18l-7 8v6l-4-2v-4z"/></svg></button>
 </header>
 
 <aside id="news"><header><span>Latest news</span><button id="nx" aria-label="Close news">×</button></header><div id="nl"></div><div class="nf"><span id="np"></span><button id="nn">Next</button></div></aside>
@@ -292,5 +316,6 @@ $("submit").onclick=e=>{e.preventDefault();submitModal()};$("alerts").onclick=al
 try{user=JSON.parse(store.get("user")||"null");if(user)saved=new Set(JSON.parse(store.get("saved:"+user.email)||"[]"))}catch(e){user=null}
 renderUser();
 window.addEventListener("hashchange",showDetail);
+$("ftog").onclick=()=>$("bar").classList.toggle("open");
 load();loadJobs();loadNews();
 </script></body></html>
