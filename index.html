@@ -150,6 +150,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{ou
 .alerts{padding:8px 14px;font-size:13px}
 #news{display:none}
 }
+@media(max-width:900px){input,select{font-size:16px!important}}
 </style></head><body>
 <div id="map"></div>
 
@@ -292,7 +293,7 @@ $("jobs").onclick=toggleJobs;$("roles").onclick=e=>{if(e.target.id==="rx")$("rol
 let user=null,saved=new Set(),savedOn=false;
 const store={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
 function renderUser(){$("signin").innerHTML=user?`<b class="av">${esc(user.name[0].toUpperCase())}</b>${esc(user.name.split(" ")[0])}`:"Sign in"}
-function modal(h){const m=$("modal");m.firstElementChild.innerHTML=h;m.style.display="grid";const f=m.querySelector("input");if(f)f.focus()}
+function modal(h){const m=$("modal");m.firstElementChild.innerHTML=h;m.style.display="grid";const f=m.querySelector("input");if(f&&!matchMedia("(pointer:coarse)").matches)f.focus()}
 function closeModal(){$("modal").style.display="none"}
 $("modal").onclick=e=>{if(e.target.id==="modal"||e.target.dataset.close!==undefined)closeModal()};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
