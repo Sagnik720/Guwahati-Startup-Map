@@ -269,7 +269,7 @@ function loadNews(){
 const ago=d=>{const t=new Date(d);if(isNaN(t))return"";const h=(Date.now()-t)/36e5;return h<24?Math.max(1,Math.floor(h))+"h":h<24*8?Math.floor(h/24)+"d":t.toLocaleDateString("en-GB",{day:"numeric",month:"short"})};
 function drawNews(){
   const s=page*5,items=news.slice(s,s+5);
-  $("nl").innerHTML=items.length?items.map(n=>`<a class="n" href="${esc(n.url)}" target="_blank" rel="noopener"><b>${esc(n.title)}</b><div><span class="ic" style="background:#${(((n.source||"?").charCodeAt(0)*2654435)%0xffffff|0x303030).toString(16).slice(0,6).padStart(6,"3")}">${esc((n.source||"?")[0])}</span>${esc(n.source)} · ${ago(n.date)}${n.tag?`<span class="chip">${esc(n.tag)}</span>`:""}</div></a>`).join(""):`<div class="empty">No news yet. Add a news tab to your sheet and paste its CSV link into NEWS_URL.</div>`;
+  $("nl").innerHTML=items.length?items.map(n=>`<a class="n" href="${esc(n.url)}" target="_blank" rel="noopener"><b>${esc(n.title)}</b><div><span class="ic" style="background:#${(((n.source||"?").charCodeAt(0)*2654435)%0xffffff|0x303030).toString(16).slice(0,6).padStart(6,"3")}">${esc((n.source||"?")[0])}</span>${esc(n.source)} · ${ago(n.date)}${n.tag?`<span class="chip">${esc(n.tag)}</span>`:""}</div></a>`).join(""):`<div class="empty">No news yet.`;
   $("np").textContent=news.length?`${s+1}–${Math.min(s+5,news.length)} of ${news.length}`:"0 of 0";
   $("nn").style.display=news.length>5?"":"none";
 }
