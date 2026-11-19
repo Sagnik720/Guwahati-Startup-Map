@@ -372,7 +372,7 @@ function reviewsModal(){
     if(!pick)return toast("Tap a star to rate");
     if(!REVIEW_POST_URL)return toast("Reviews are not connected yet");
     if(Date.now()-Number(store.get("reviewedAt")||0)<864e5)return toast("You already reviewed today. Thanks!");
-    const body={name:user?user.name:"Visitor",rating:pick,comment:$("rvtxt").value.trim(),date:new Date().toISOString().slice(0,10)};
+    const body={name:user?user.name:"Visitor",rating:pick,comment:$("modal").querySelector("textarea").value.trim(),date:new Date().toISOString().slice(0,10)};
     fetch(REVIEW_POST_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify(body)}).catch(()=>{});
     store.set("reviewedAt",String(Date.now()));
     $("modal").firstElementChild.innerHTML=`<div class="ok"><svg viewBox="0 0 52 52" width="64" height="64" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="none" stroke="#16a34a" stroke-width="3"/><path d="M15 27l8 8 14-16" fill="none" stroke="#16a34a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><h3>Thank you!</h3><p class="mu">Your review will show up once it is approved.</p><button class="mbtn" data-close>Done</button></div>`;
