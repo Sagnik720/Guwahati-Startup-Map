@@ -158,6 +158,31 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{ou
 .alerts{padding:6px 12px;font-size:12px}
 #res{padding:3px 9px;font-size:11px}
 }
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes pop{0%{transform:scale(.94) translateY(8px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes sheet{from{transform:translateY(100%)}to{transform:none}}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+#modal{animation:fade .2s ease}
+.mbox{animation:pop .28s cubic-bezier(.2,.8,.2,1)}
+.mbox.wide{width:min(520px,94vw)}
+#modal.out{opacity:0;transition:opacity .18s ease}
+#modal.out .mbox{transform:translateY(10px) scale(.97);opacity:0;transition:transform .18s ease,opacity .18s ease}
+.st{display:inline-block;width:16px;height:16px;background:linear-gradient(90deg,#f5a300 var(--f,100%),#d5d8dd var(--f,100%));clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+.rt{border:0;background:none;color:var(--tx);font:inherit;font-size:12px;cursor:pointer;padding:0;margin-left:6px}.rt:hover{color:var(--or)}
+.rh{display:flex;justify-content:space-between;align-items:center}.mx2{border:0;background:none;font-size:24px;color:var(--mu);cursor:pointer;width:36px;height:36px}
+.rs{display:flex;gap:28px;align-items:center;margin:14px 0 16px}.big{font-size:42px;font-weight:700;line-height:1}.bars{flex:1}.sm2{font-size:13px}
+.br{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mu)}.br b{flex:1;height:6px;border-radius:3px;background:var(--bd);overflow:hidden}
+.br i{display:block;height:100%;width:0;background:#f5a300;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.rb{border-top:1px solid var(--bd);padding-top:14px}
+.rb textarea{width:100%;border:1px solid var(--bd);border-radius:12px;padding:10px;font:inherit;font-size:16px;background:var(--pill);color:var(--tx);resize:none;margin:4px 0}
+.sb{border:0;background:none;padding:4px;cursor:pointer;border-radius:8px}
+.sb .st{--f:0%;width:32px;height:32px;transition:transform .15s}.sb.on .st{--f:100%}.sb:hover .st{transform:scale(1.15)}.sb.pop .st{animation:bump .3s}
+.rvl{margin-top:14px}.rv{padding:10px 0;border-top:1px solid var(--bd);font-size:14px;opacity:0;animation:up .4s ease forwards}
+.ok{text-align:center;padding:10px 0}.ok path{stroke-dasharray:40;stroke-dashoffset:40;animation:draw .5s .15s forwards}
+@media(max-width:640px){#modal{align-items:end}.mbox,.mbox.wide{width:100%;border-radius:22px 22px 0 0;max-height:88vh;overflow:auto;animation:sheet .32s cubic-bezier(.2,.8,.2,1);padding-bottom:calc(20px + env(safe-area-inset-bottom))}#modal.out .mbox{transform:translateY(100%)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1}}
 </style></head><body>
 <div id="map"></div>
 
@@ -200,6 +225,8 @@ const JOBS_URL   = ""; // optional: a "jobs" tab (columns company,title,departme
 const SITE_NAME  = "Guwahati Startup Map";
 const CREDIT     = "by Sagnik Tamuli"; // small credit, bottom-left
 const CREDIT_LINK = "https://www.linkedin.com/in/sagnik-tamuli-57b3b62a7"; // your LinkedIn link
+const REVIEWS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzguvsyeVH853_dPd5yrMWcbOeClMn4OfBUVUAlYFOho8W0LrFjGZ5FJkeRccAZo04CNJw5XoIP58B/pub?gid=0&single=true&output=csv";      // paste the reviews tab CSV link
+const REVIEW_POST_URL = "https://script.google.com/macros/s/AKfycbzPdlSKsXsHdtA-N3HKpKxDOv_MaipiDR9mnO-_eHpBJostsSmKds9FQAL6PDcNsH8LEw/exec";  // paste the Apps Script Web app URL
 /* ==================== */
 const COL={startup:"#e11d48",incubator:"#0e7490",vc:"#b8860b",employer:"#16a34a"};
 const $=id=>document.getElementById(id);
@@ -301,7 +328,7 @@ let user=null,saved=new Set(),savedOn=false;
 const store={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
 function renderUser(){$("signin").innerHTML=user?`<b class="av">${esc(user.name[0].toUpperCase())}</b>${esc(user.name.split(" ")[0])}`:"Sign in"}
 function modal(h){const m=$("modal");m.firstElementChild.innerHTML=h;m.style.display="grid";const f=m.querySelector("input");if(f&&!matchMedia("(pointer:coarse)").matches)f.focus()}
-function closeModal(){$("modal").style.display="none"}
+function closeModal(){const m=$("modal");if(m.style.display==="none")return;m.classList.add("out");setTimeout(()=>{m.style.display="none";m.classList.remove("out");m.firstElementChild.classList.remove("wide")},180)}
 $("modal").onclick=e=>{if(e.target.id==="modal"||e.target.dataset.close!==undefined)closeModal()};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
 function setUser(u){user=u;store.set("user",JSON.stringify(u));try{saved=new Set(JSON.parse(store.get("saved:"+u.email)||"[]"))}catch(e){saved=new Set()}closeModal();renderUser();toast("Signed in as "+u.name);render();showDetail()}
@@ -325,5 +352,33 @@ try{user=JSON.parse(store.get("user")||"null");if(user)saved=new Set(JSON.parse(
 renderUser();
 window.addEventListener("hashchange",showDetail);
 $("ftog").onclick=()=>$("bar").classList.toggle("open");
+let reviews=[];
+const star=(v,i)=>`<i class="st" style="--f:${Math.round(Math.max(0,Math.min(1,v-i))*100)}%"></i>`;
+const stars=v=>[0,1,2,3,4].map(i=>star(v,i)).join("");
+$("credit").insertAdjacentHTML("beforeend",' <button class="rt" id="rate" aria-label="Rate this site">★ Rate</button>');$("rate").onclick=reviewsModal;
+function updateRating(){const n=reviews.length,avg=n?reviews.reduce((a,r)=>a+r.rating,0)/n:0;$("rate").innerHTML=n?`<i class="st" style="--f:100%;width:12px;height:12px;vertical-align:-1px"></i> <b>${avg.toFixed(1)}</b> <span class="mu">(${n})</span>`:"★ Rate"}
+function reviewsModal(){
+  const n=reviews.length,avg=n?reviews.reduce((a,r)=>a+r.rating,0)/n:0,cnt=k=>reviews.filter(r=>r.rating===k).length;
+  const bars=[5,4,3,2,1].map(k=>`<div class="br">${k}<b><i data-w="${n?Math.round(cnt(k)/n*100):0}%"></i></b></div>`).join("");
+  const list=reviews.slice().reverse().slice(0,3).map((r,i)=>`<div class="rv" style="animation-delay:${.15+i*.08}s">${stars(r.rating)} <small>${esc(r.name)}${r.date?" · "+esc(r.date):""}</small>${r.comment?`<div>${esc(r.comment)}</div>`:""}</div>`).join("");
+  modal(`<div class="rh"><h3>Reviews</h3><button class="mx2" data-close aria-label="Close">×</button></div><div class="rs"><div><div class="big" id="bigavg">${n?avg.toFixed(1):"–"}</div><div>${stars(avg)}</div><div class="mu sm2">${n?n+" review"+(n>1?"s":""):"No reviews yet"}</div></div><div class="bars">${bars}</div></div><div class="rb"><b>Rate this site</b><div id="rin">${[1,2,3,4,5].map(k=>`<button class="sb" aria-label="${k} star${k>1?"s":""}"><i class="st"></i></button>`).join("")}</div><label for="rc" class="mu sm2">Add a comment (optional)</label><textarea id="rc" rows="2" maxlength="300" placeholder="What did you find useful?"></textarea><button class="mbtn" id="rgo">Submit review</button></div>${list?`<div class="rvl"><b>Latest reviews</b>${list}</div>`:""}`);
+  $("modal").firstElementChild.classList.add("wide");
+  let pick=0;const bs=[...$("rin").children],paint=k=>bs.forEach((b,i)=>b.classList.toggle("on",i<k));
+  bs.forEach((b,i)=>{b.onmouseenter=()=>paint(i+1);b.onfocus=()=>paint(i+1);b.onclick=()=>{pick=i+1;paint(pick);b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop")}});
+  $("rin").onmouseleave=()=>paint(pick);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>$("modal").querySelectorAll(".br i").forEach(i=>i.style.width=i.dataset.w)));
+  if(n){const el=$("bigavg"),t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/700);el.textContent=(avg*(1-Math.pow(1-p,3))).toFixed(1);if(p<1)requestAnimationFrame(f)})(t0)}
+  $("rgo").onclick=()=>{
+    if(!pick)return toast("Tap a star to rate");
+    if(!REVIEW_POST_URL)return toast("Reviews are not connected yet");
+    if(Date.now()-Number(store.get("reviewedAt")||0)<864e5)return toast("You already reviewed today. Thanks!");
+    const body={name:user?user.name:"Visitor",rating:pick,comment:$("rc").value.trim(),date:new Date().toISOString().slice(0,10)};
+    fetch(REVIEW_POST_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify(body)}).catch(()=>{});
+    store.set("reviewedAt",String(Date.now()));
+    $("modal").firstElementChild.innerHTML=`<div class="ok"><svg viewBox="0 0 52 52" width="64" height="64" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="none" stroke="#16a34a" stroke-width="3"/><path d="M15 27l8 8 14-16" fill="none" stroke="#16a34a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><h3>Thank you!</h3><p class="mu">Your review will show up once it is approved.</p><button class="mbtn" data-close>Done</button></div>`;
+  };
+}
+function loadReviews(){if(!REVIEWS_URL)return updateRating();Papa.parse(REVIEWS_URL,{download:true,header:true,skipEmptyLines:true,transformHeader:h=>h.trim().toLowerCase(),complete:r=>{reviews=r.data.filter(x=>(x.status||"").trim().toLowerCase()==="approved"&&Number(x.rating)>=1&&Number(x.rating)<=5).map(x=>({name:(x.name||"Visitor").trim(),rating:Math.round(Number(x.rating)),comment:(x.comment||"").trim(),date:(x.date||"").trim().split(" ")[0]}));updateRating()},error:updateRating})}
+loadReviews();
 load();loadJobs();loadNews();
 </script></body></html>
