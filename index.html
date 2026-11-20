@@ -183,6 +183,9 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{ou
 .ok{text-align:center;padding:10px 0}.ok path{stroke-dasharray:40;stroke-dashoffset:40;animation:draw .5s .15s forwards}
 @media(max-width:640px){#modal{align-items:end}.mbox,.mbox.wide{width:100%;border-radius:22px 22px 0 0;max-height:88vh;overflow:auto;animation:sheet .32s cubic-bezier(.2,.8,.2,1);padding-bottom:calc(20px + env(safe-area-inset-bottom))}#modal.out .mbox{transform:translateY(100%)}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1}}
+.mbox.fadein{animation:fade .7s ease!important}
+#modal:has(.fadein){animation-duration:.7s}
+@media(max-width:640px){#modal.out .mbox.fadein{transform:none}}
 </style></head><body>
 <div id="map"></div>
 
@@ -328,7 +331,7 @@ let user=null,saved=new Set(),savedOn=false;
 const store={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
 function renderUser(){$("signin").innerHTML=user?`<b class="av">${esc(user.name[0].toUpperCase())}</b>${esc(user.name.split(" ")[0])}`:"Sign in"}
 function modal(h){const m=$("modal");m.firstElementChild.innerHTML=h;m.style.display="grid";const f=m.querySelector("input");if(f&&!matchMedia("(pointer:coarse)").matches)f.focus()}
-function closeModal(){const m=$("modal");if(m.style.display==="none")return;m.classList.add("out");setTimeout(()=>{m.style.display="none";m.classList.remove("out");m.firstElementChild.classList.remove("wide")},180)}
+function closeModal(){const m=$("modal");if(m.style.display==="none")return;m.classList.add("out");setTimeout(()=>{m.style.display="none";m.classList.remove("out");m.firstElementChild.classList.remove("wide","fadein")},180)}
 $("modal").onclick=e=>{if(e.target.id==="modal"||e.target.dataset.close!==undefined)closeModal()};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
 function setUser(u){user=u;store.set("user",JSON.stringify(u));try{saved=new Set(JSON.parse(store.get("saved:"+u.email)||"[]"))}catch(e){saved=new Set()}closeModal();renderUser();toast("Signed in as "+u.name);render();showDetail()}
@@ -380,5 +383,12 @@ function reviewsModal(){
 }
 function loadReviews(){if(!REVIEWS_URL)return updateRating();Papa.parse(REVIEWS_URL,{download:true,header:true,skipEmptyLines:true,transformHeader:h=>h.trim().toLowerCase(),complete:r=>{reviews=r.data.filter(x=>(x.status||"").trim().toLowerCase()==="approved"&&Number(x.rating)>=1&&Number(x.rating)<=5).map(x=>({name:(x.name||"Visitor").trim(),rating:Math.round(Number(x.rating)),comment:(x.comment||"").trim(),date:(x.date||"").trim().split(" ")[0]}));updateRating()},error:updateRating})}
 loadReviews();
+setTimeout(()=>{try{
+  if(getComputedStyle($("modal")).display!=="none")return;
+  if(Date.now()-Number(store.get("rvSeen")||0)<6048e5)return;
+  if(Date.now()-Number(store.get("reviewedAt")||0)<6048e5)return;
+  store.set("rvSeen",String(Date.now()));
+  reviewsModal();$("modal").firstElementChild.classList.add("fadein");
+}catch(e){}},4000);
 load();loadJobs();loadNews();
 </script></body></html>
