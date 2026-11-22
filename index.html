@@ -379,7 +379,7 @@ function reviewsModal(){
       t=t.trim();
       if(t==="ok"){store.set("reviewedAt",String(Date.now()));reviews.push({name:(user.name||"Visitor").split(" ")[0],rating:pick,comment:cm,date:new Date().toISOString().slice(0,10)});updateRating();
         $("modal").firstElementChild.innerHTML=`<div class="ok"><svg viewBox="0 0 52 52" width="64" height="64" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="none" stroke="#16a34a" stroke-width="3"/><path d="M15 27l8 8 14-16" fill="none" stroke="#16a34a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><h3>Thank you!</h3><p class="mu">Your review is now live.</p><button class="mbtn" data-close>Done</button></div>`}
-      else{if(t==="auth")window.gcred=null;btn.disabled=false;btn.textContent="Submit review";toast(t==="dup"?"You have already reviewed. Thanks!":t==="auth"?"Please sign in with Google again":"Could not send, try again")}
+      else{if(t==="auth")window.gcred=null;btn.disabled=false;btn.textContent="Submit review";toast(t==="dup"?"You have already reviewed. Thanks!":t==="auth"?"Please sign in with Google again":"Reply: "+t.replace(/<[^>]*>/g," ").slice(0,90))}
     }).catch(()=>{btn.disabled=false;btn.textContent="Submit review";toast("Could not send, try again")});
   };
 }
