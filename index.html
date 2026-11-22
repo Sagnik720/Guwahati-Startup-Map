@@ -337,7 +337,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
 function setUser(u){user=u;store.set("user",JSON.stringify(u));try{saved=new Set(JSON.parse(store.get("saved:"+u.email)||"[]"))}catch(e){saved=new Set()}closeModal();renderUser();toast("Signed in as "+u.name);render();showDetail();if(window.rvAfter){window.rvAfter=0;setTimeout(reviewsModal,300)}}
 function signInModal(){modal(`<h3>Sign in</h3><p class="mu">Save companies you like. Your saved list is kept on this device.</p><div id="gbtn"></div><input id="sn" placeholder="Your name" autocomplete="name"><input id="se" type="email" placeholder="Email" autocomplete="email"><button class="mbtn" id="sgo">Continue</button><button class="mx" data-close>Cancel</button>`);
   $("sgo").onclick=()=>{const n=$("sn").value.trim(),e=$("se").value.trim().toLowerCase();if(!n||!/^\S+@\S+\.\S+$/.test(e))return toast("Enter your name and a valid email");setUser({name:n,email:e})};
-  if(GOOGLE_CLIENT_ID&&window.google&&google.accounts){google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:c=>{try{const q=JSON.parse(decodeURIComponent(escape(atob(c.credential.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")))));window.gcred=c.credential;setUser({name:q.name||q.email,email:q.email,g:1})}catch(e){toast("Google sign-in failed")}}});google.accounts.id.renderButton($("gbtn"),{theme:"outline",size:"large",width:300})}}
+  if(GOOGLE_CLIENT_ID&&window.google&&google.accounts){google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:c=>{try{const q=JSON.parse(decodeURIComponent(escape(atob(c.credential.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")))));window.gcred=c.credential;store.set("gcred",c.credential);setUser({name:q.name||q.email,email:q.email,g:1})}catch(e){toast("Google sign-in failed")}}});google.accounts.id.renderButton($("gbtn"),{theme:"outline",size:"large",width:300})}}
 function accountModal(){modal(`<h3>${esc(user.name)}</h3><p class="mu">${esc(user.email)}</p><button class="mbtn" id="msv">${savedOn?"Show all companies":"Show saved companies ("+saved.size+")"}</button><button class="mx" id="mso">Sign out</button>`);
   $("msv").onclick=()=>{savedOn=!savedOn;closeModal();render()};
   $("mso").onclick=()=>{user=null;saved=new Set();savedOn=false;store.del("user");closeModal();renderUser();render();showDetail();toast("Signed out")}}
@@ -353,6 +353,7 @@ function alertsModal(){if(ALERT_URL){window.open(ALERT_URL,"_blank","noopener");
 $("submit").onclick=e=>{e.preventDefault();submitModal()};$("alerts").onclick=alertsModal;$("signin").onclick=()=>user?accountModal():signInModal();
 try{user=JSON.parse(store.get("user")||"null");if(user)saved=new Set(JSON.parse(store.get("saved:"+user.email)||"[]"))}catch(e){user=null}
 renderUser();
+try{const g=store.get("gcred");if(g){const p=JSON.parse(decodeURIComponent(escape(atob(g.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")))));if(p.exp*1000>Date.now()+60000)window.gcred=g;else store.del("gcred")}}catch(e){}
 window.addEventListener("hashchange",showDetail);
 $("ftog").onclick=()=>$("bar").classList.toggle("open");
 let reviews=[];
@@ -379,7 +380,7 @@ function reviewsModal(){
       t=t.trim();
       if(t==="ok"){store.set("reviewedAt",String(Date.now()));reviews.push({name:(user.name||"Visitor").split(" ")[0],rating:pick,comment:cm,date:new Date().toISOString().slice(0,10)});updateRating();
         $("modal").firstElementChild.innerHTML=`<div class="ok"><svg viewBox="0 0 52 52" width="64" height="64" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="none" stroke="#16a34a" stroke-width="3"/><path d="M15 27l8 8 14-16" fill="none" stroke="#16a34a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><h3>Thank you!</h3><p class="mu">Your review is now live.</p><button class="mbtn" data-close>Done</button></div>`}
-      else{if(t==="auth")window.gcred=null;btn.disabled=false;btn.textContent="Submit review";toast(t==="dup"?"You have already reviewed. Thanks!":t==="auth"?"Please sign in with Google again":"Reply: "+t.replace(/<[^>]*>/g," ").slice(0,90))}
+      else{if(t==="auth"){window.gcred=null;store.del("gcred")}btn.disabled=false;btn.textContent="Submit review";toast(t==="dup"?"You have already reviewed. Thanks!":t==="auth"?"Please sign in with Google again":"Reply: "+t.replace(/<[^>]*>/g," ").slice(0,90))}
     }).catch(e=>{btn.disabled=false;btn.textContent="Submit review";toast("Blocked: "+e.message)});
   };
 }
