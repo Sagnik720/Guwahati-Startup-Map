@@ -272,7 +272,7 @@ L.control.zoom({position:"bottomright"}).addTo(map);
 if(L.maplibreGL){L.maplibreGL({style:"https://tiles.openfreemap.org/styles/liberty",attribution:'<a href="https://openfreemap.org">OpenFreeMap</a> &copy; OpenMapTiles &copy; OpenStreetMap'}).addTo(map)}
 else{L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"&copy; OpenStreetMap"}).addTo(map)}
 const cl=L.markerClusterGroup?L.markerClusterGroup({showCoverageOnHover:false,maxClusterRadius:45}):L.layerGroup();map.addLayer(cl);
-window.addEventListener("error",e=>{$("msg").style.display="grid";$("msg").firstElementChild.innerHTML="<h2>Something went wrong</h2><p>"+esc(e.message)+"</p>"});
+window.addEventListener("error",e=>{if(rows.length)return;$("msg").style.display="grid";$("msg").firstElementChild.innerHTML="<h2>Something went wrong</h2><p>"+esc(e.message)+"</p>"});
 
 $("title").textContent=SITE_NAME;$("credit").innerHTML=esc(CREDIT)+(CREDIT_LINK?` <a class="li" href="${esc(CREDIT_LINK)}" target="_blank" rel="noopener" aria-label="LinkedIn">in</a>`:"");if(!CREDIT)$("credit").style.display="none";
 $("submit").href=SUBMIT_URL||"#";$("submit").onclick=e=>{if(!SUBMIT_URL){e.preventDefault();toast("Add your form link in SUBMIT_URL")}};
@@ -317,7 +317,7 @@ function render(){
   $("res").textContent=l.length+" results"+(l.length>p.length?` (${l.length-p.length} not pinned)`:"");
   cl.clearLayers();
   p.forEach(r=>{const c=COL[r.type.toLowerCase()]||"#555",ini=esc((r.name[0]||"?").toUpperCase());
-    const inner=/^https?:\/\//i.test(r.logo)?`<img src="${esc(r.logo)}" alt="" onerror="this.parentNode.textContent='${ini}'">`:ini;
+    const inner=/^https?:\/\//i.test(r.logo)?`<img src="${esc(r.logo)}" alt="" onerror="this.parentNode&&(this.parentNode.textContent='${ini}')">`:ini;
     cl.addLayer(L.marker([r.lat,r.lng],{icon:L.divIcon({className:"",html:`<div class="pin" style="border-color:${c}">${inner}</div>`,iconSize:[38,38],iconAnchor:[19,19]})}).bindPopup(`<div class="pop">${card(r)}</div>`,{maxWidth:280}).bindTooltip(r.name))});
   if(p.length)map.fitBounds(L.latLngBounds(p.map(r=>[r.lat,r.lng])).pad(.2),{maxZoom:14});
   $("grid").innerHTML=l.length?l.map(gcard).join(""):"<p>No companies match these filters.</p>";
@@ -393,5 +393,12 @@ setTimeout(()=>{try{
   store.set("rvSeen",String(Date.now()));
   reviewsModal();$("modal").firstElementChild.classList.add("fadein");
 }catch(e){}},4000);
+const _sim=signInModal;
+signInModal=function(){
+  _sim();
+  const g=$("gbtn");if(!g)return;
+  if(/LinkedInApp|FBAN|FBAV|Instagram|Snapchat|Twitter|; wv\)/i.test(navigator.userAgent)){g.innerHTML='<p class="mu">Google sign-in is blocked inside this app. Tap the ⋯ menu and choose “Open in browser”, then try again.</p>';return}
+  if(!(window.google&&google.accounts)){g.innerHTML='<p class="mu">Loading Google sign-in…</p>';let n=0;const t=setInterval(()=>{n++;if(window.google&&google.accounts&&$("gbtn")){clearInterval(t);const had=window.rvAfter;_sim();if(had){$("sn").style.display=$("se").style.display=$("sgo").style.display="none";$("modal").querySelector(".mu").textContent="Sign in with Google to post your review."}}else if(n>20||!$("gbtn")){clearInterval(t);if($("gbtn"))$("gbtn").innerHTML='<p class="mu">Could not load Google. Check your connection or try another browser.</p>'}},500)}
+};
 load();loadJobs();loadNews();
 </script></body></html>
