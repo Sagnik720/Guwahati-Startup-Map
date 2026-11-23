@@ -186,6 +186,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{ou
 .mbox.fadein{animation:fade .7s ease!important}
 #modal:has(.fadein){animation-duration:.7s}
 @media(max-width:640px){#modal.out .mbox.fadein{transform:none}}
+@media(min-width:641px){.mbox.wide{max-height:90vh;overflow-y:auto}}
 </style></head><body>
 <div id="map"></div>
 
@@ -364,9 +365,9 @@ function updateRating(){const n=reviews.length,avg=n?reviews.reduce((a,r)=>a+r.r
 function reviewsModal(){
   const n=reviews.length,avg=n?reviews.reduce((a,r)=>a+r.rating,0)/n:0,cnt=k=>reviews.filter(r=>r.rating===k).length;
   const bars=[5,4,3,2,1].map(k=>`<div class="br">${k}<b><i data-w="${n?Math.round(cnt(k)/n*100):0}%"></i></b></div>`).join("");
-  const list=reviews.slice().reverse().slice(0,3).map((r,i)=>`<div class="rv" style="animation-delay:${.15+i*.08}s">${stars(r.rating)} <small>${esc(r.name)}${r.date?" · "+esc(r.date):""}</small>${r.comment?`<div>${esc(r.comment)}</div>`:""}</div>`).join("");
-  modal(`<div class="rh"><h3>Reviews</h3><button class="mx2" data-close aria-label="Close">×</button></div><div class="rs"><div><div class="big" id="bigavg">${n?avg.toFixed(1):"–"}</div><div>${stars(avg)}</div><div class="mu sm2">${n?n+" review"+(n>1?"s":""):"No reviews yet"}</div></div><div class="bars">${bars}</div></div><div class="rb"><b>Rate this site</b><div id="rin">${[1,2,3,4,5].map(k=>`<button class="sb" aria-label="${k} star${k>1?"s":""}"><i class="st"></i></button>`).join("")}</div><label for="rvtxt" class="mu sm2">Add a comment (optional)</label><textarea id="rvtxt" rows="2" maxlength="300" placeholder="What did you find useful?"></textarea><button class="mbtn" id="rgo">${user&&user.g&&window.gcred?"Submit review":"Sign in with Google to review"}</button></div>${list?`<div class="rvl"><b>Latest reviews</b>${list}</div>`:""}`);
-  $("modal").firstElementChild.classList.add("wide");
+  const all=reviews.slice().reverse(),PER=4,item=(r,i)=>`<div class="rv" style="animation-delay:${.15+i*.08}s">${stars(r.rating)} <small>${esc(r.name)}${r.date?" · "+esc(r.date):""}</small>${r.comment?`<div>${esc(r.comment)}</div>`:""}</div>`,list=all.slice(0,PER).map(item).join("");
+  modal(`<div class="rh"><h3>Reviews</h3><button class="mx2" data-close aria-label="Close">×</button></div><div class="rs"><div><div class="big" id="bigavg">${n?avg.toFixed(1):"–"}</div><div>${stars(avg)}</div><div class="mu sm2">${n?n+" review"+(n>1?"s":""):"No reviews yet"}</div></div><div class="bars">${bars}</div></div><div class="rb"><b>Rate this site</b><div id="rin">${[1,2,3,4,5].map(k=>`<button class="sb" aria-label="${k} star${k>1?"s":""}"><i class="st"></i></button>`).join("")}</div><label for="rvtxt" class="mu sm2">Add a comment (optional)</label><textarea id="rvtxt" rows="2" maxlength="300" placeholder="What did you find useful?"></textarea><button class="mbtn" id="rgo">${user&&user.g&&window.gcred?"Submit review":"Sign in with Google to review"}</button></div>${list?`<div class="rvl"><b>Latest reviews</b><div id="rvbox">${list}</div>${all.length>PER?`<button class="mx" id="rvmore">Load more (${all.length-PER})</button>`:""}</div>`:""}`);
+  $("modal").firstElementChild.classList.add("wide"); let shown=PER;const mb=$("rvmore");if(mb)mb.onclick=()=>{$("rvbox").insertAdjacentHTML("beforeend",all.slice(shown,shown+PER).map(item).join(""));shown+=PER;if(shown>=all.length)mb.remove();else mb.textContent="Load more ("+(all.length-shown)+")"};
   let pick=0;const bs=[...$("rin").children],paint=k=>bs.forEach((b,i)=>b.classList.toggle("on",i<k));
   bs.forEach((b,i)=>{b.onmouseenter=()=>paint(i+1);b.onfocus=()=>paint(i+1);b.onclick=()=>{pick=i+1;paint(pick);b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop")}});
   $("rin").onmouseleave=()=>paint(pick);
