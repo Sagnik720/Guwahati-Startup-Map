@@ -185,18 +185,17 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{ou
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1}}
 .mbox.fadein{animation:fade .7s ease!important}
 #modal:has(.fadein){animation-duration:.7s}
-@media(max-width:640px){#modal.out .mbox.fadein{transform:none}}
-@media(min-width:641px){.mbox.wide{max-height:90vh;overflow-y:auto}}
 @media(max-width:640px){
 .bar{padding:8px 10px;gap:6px}
-.brand{font-size:14px;gap:6px;min-width:0}
-.brand svg{width:14px;height:18px}
-#submit{padding:6px 12px;font-size:13px}
-#signin{padding:6px 11px;font-size:13px}
-#q{min-width:70px;flex:1 1 70px;padding:6px 11px}
+.brand{order:1;flex:1 1 auto;font-size:15px;gap:6px;margin:0;min-width:max-content}
+.brand svg{width:14px;height:18px;flex:none}
+#submit{order:2;flex:none;padding:6px 12px;font-size:13px}
+#signin{order:3;flex:none;padding:6px 11px;font-size:13px}
+#q{order:4;flex:1 1 90px;min-width:90px;padding:6px 11px}
+.seg{order:5;flex:none}
 .seg button{padding:4px 10px;font-size:13px}
-#jobs{padding:5px 9px;font-size:12px}
-.ftog{padding:7px 10px}
+#jobs{order:6;flex:none;padding:5px 9px;font-size:12px}
+.ftog{order:7;flex:none;padding:7px 10px}
 .alerts{padding:5px 11px!important;font-size:11px!important}
 }
 </style></head><body>
